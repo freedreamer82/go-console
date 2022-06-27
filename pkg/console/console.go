@@ -72,7 +72,15 @@ type Console struct {
 	uuid             string
 }
 
-func NewConsole(iorw ConsoleI) *Console {
+type ConsoleOption func(console *Console)
+
+func WithOptionCustomUUID(uuid string) ConsoleOption {
+	return func(console *Console) {
+		console.uuid = uuid
+	}
+}
+
+func NewConsole(iorw ConsoleI, opts ...ConsoleOption) *Console {
 
 	c := Console{term: terminal.NewTerminal(iorw, prompt), eol: eol, mask: 0,
 		welcome: defaultWelcome, userLevel: Root, iorw: iorw, onclose: nil}
@@ -85,6 +93,10 @@ func NewConsole(iorw ConsoleI) *Console {
 	c.uuid = shortuuid.New()
 	c.timeout = 0
 	c.lastActivitytime = time.Now()
+
+	for _, opt := range opts {
+		opt(&c)
+	}
 
 	c.AddCallbackOnClose(c.dummyCb)
 	log.Printf("Open Console %s", c.uuid)
@@ -184,6 +196,7 @@ func (c *Console) handleLogin(cmd string) bool {
 	if cmd == c.password {
 		c.mask.ToggleFlag(USER_LOGGED)
 		c.enablePrompt(true)
+		c.Print("Authenticated")
 		return true
 	}
 	return false
