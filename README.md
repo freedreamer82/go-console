@@ -5,6 +5,7 @@ go console is a go lib to implement consoles, it includes:
 - Std output console
 - Telnet console
 - SSH console
+- MQTT console (with lib mqtt-shell of freedeamer82)
 - Other Consoles can be added easily(BLE,Serial etc..)
 
 
@@ -52,6 +53,20 @@ with pub key
 ```sh
 sshc, _ := console.NewSSHConsoleWithCertificates(sshPrivateKeyPath, sshAuthorizedKeysPath, console.WithOptionKeyPassphrase(sshPrivateKeyPassPhrase))
 go sshc.Start("localhost", sshPort, 2)
+```
+
+
+### Mqtt console example
+```sh
+func onNewConsole(console *console.Console) {
+	console.EnableLogin("root")
+}
+
+opt1 := console.WithOptionMqttConsoleMaxConnections(3)
+opt2 := console.WithOptionMqttConsoleTimeout(timeoutSec * time.Second)
+mqttConsole := console.NewMqttConsole(clientOps, "test", opt1, opt2)
+mqttConsole.AddCallbackOnNewConsole(onNewConsole)
+go mqttConsole.Start()
 ```
 
 ### go console api
@@ -155,4 +170,7 @@ go build
 
 //console ssh (pub keys)
 ./server 3
+
+//console mqtt
+./server 4
 ```
