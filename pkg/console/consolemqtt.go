@@ -212,7 +212,11 @@ func (mqttConsole *MqttConsole) dataTx() {
 					outMsg = ""
 				}
 				outMsg = strings.Replace(outMsg, ">", "", -1)
-				mqttConsole.mqttChat.Transmit(outMsg, out.cmdUUID, out.clientUUID)
+				data := mqttchat.NewMqttJsonDataEmpty()
+				data.Data =  outMsg
+				data.CmdUUID =  out.cmdUUID
+				data.ClientUUID = out.clientUUID
+				mqttConsole.mqttChat.Transmit(data)
 			}
 		}
 	}
